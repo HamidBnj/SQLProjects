@@ -1,6 +1,6 @@
 --Iran: Total Cases vs Total Deaths (Mortality Rate) by Date
 SELECT location, date, total_cases, total_deaths, 
-	   CONVERT(DECIMAL(10,2),(total_deaths/total_cases)*100) AS mortality_rate
+       CONVERT(DECIMAL(10,2),(total_deaths/total_cases)*100) AS mortality_rate
   FROM PortfolioSQLProjects.dbo.covid_deaths
  WHERE total_cases <> 0 
    AND continent IS NOT NULL 
@@ -11,7 +11,7 @@ SELECT location, date, total_cases, total_deaths,
 --Countries Sorted by Infection Rate
 --Not a good Index as total identified cases are heavily based on functionality of the national health systems.
 SELECT location, population, MAX(total_cases) AS cases_total, 
-	   CONVERT(DECIMAL(10,2),(MAX(total_cases)/population)*100) AS infection_rate
+       CONVERT(DECIMAL(10,2),(MAX(total_cases)/population)*100) AS infection_rate
   FROM PortfolioSQLProjects.dbo.covid_deaths
  WHERE total_cases <> 0 
    AND continent IS NOT NULL
@@ -33,12 +33,12 @@ CREATE TABLE #vaccination_by_country
  
 INSERT INTO #vaccination_by_country 
 SELECT deceased.continent, deceased.location, deceased.date, deceased.population, vaccination.new_vaccinations,
-	   SUM(CONVERT(NUMERIC, vaccination.new_vaccinations)) OVER 
-	   (PARTITION BY deceased.location ORDER BY deceased.date) AS total_vaccinations
+       SUM(CONVERT(NUMERIC, vaccination.new_vaccinations)) OVER 
+       (PARTITION BY deceased.location ORDER BY deceased.date) AS total_vaccinations
   FROM PortfolioSQLProjects.dbo.covid_deaths deceased
   JOIN PortfolioSQLProjects.dbo.covid_vaccinations vaccination
-	ON deceased.location = vaccination.location
-	   AND deceased.date = vaccination.date
+    ON deceased.location = vaccination.location
+       AND deceased.date = vaccination.date
  WHERE deceased.continent IS NOT NULL
 
 SELECT *, CONVERT(DECIMAL(10,2),(total_vaccinations/population)*100) AS vaccination_percentage
@@ -49,14 +49,14 @@ SELECT *, CONVERT(DECIMAL(10,2),(total_vaccinations/population)*100) AS vaccinat
 --Vaccination by Country View
 CREATE VIEW vaccination_by_country_view AS
 SELECT deceased.continent, deceased.location, deceased.date, deceased.population, vaccination.new_vaccinations,
-	   SUM(CONVERT(NUMERIC, vaccination.new_vaccinations)) OVER 
-	   (PARTITION BY deceased.location ORDER BY deceased.date) AS total_vaccinations
+       SUM(CONVERT(NUMERIC, vaccination.new_vaccinations)) OVER 
+       (PARTITION BY deceased.location ORDER BY deceased.date) AS total_vaccinations
   FROM PortfolioSQLProjects.dbo.covid_deaths deceased
   JOIN PortfolioSQLProjects.dbo.covid_vaccinations vaccination
-	ON deceased.location = vaccination.location
-	   AND deceased.date = vaccination.date
+    ON deceased.location = vaccination.location
+       AND deceased.date = vaccination.date
  WHERE deceased.continent IS NOT NULL
 
 SELECT *
-FROM vaccination_by_country_view
-WHERE new_vaccinations IS NOT NULL
+  FROM vaccination_by_country_view
+ WHERE new_vaccinations IS NOT NULL
